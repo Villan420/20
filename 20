@@ -1,0 +1,408 @@
+SAILOR DATABASE
+mysql> create database BOATS
+ -> ;
+Query OK, 1 row affected (0.02 sec)
+mysql> use BOATS
+Database changed
+mysql> create table SAILOR
+ -> (
+ -> Sid varchar(5) primary key,
+ -> Sname varchar(15),
+ -> Rating int,
+ -> Age int 
+ -> );
+Query OK, 0 rows affected (0.01 sec)
+mysql> desc SAILOR;
++--------+-------------+------+-----+---------+-------+
+| Field | Type | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| Sid | varchar(5) | NO | PRI | NULL | |
+| Sname | varchar(15) | YES | | NULL | |
+| Rating | int | YES | | NULL | |
+| Age | int | YES | | NULL | |
++--------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+mysql> insert into SAILOR(Sid,Sname,Rating,Age)
+ -> values
+ -> ("S101","shivshankar",3,26),
+ -> ("S102","hrithik",2,24),
+ -> ("S103","hawkins",4,29),
+ -> ("S104","homelander",1,35),
+ -> ("S105","butcher",2,37);
+ 
+Records: 5 Duplicates: 0 Warnings: 0
+mysql> select *from SAILOR;
++------+-------------+--------+------+
+| Sid | Sname | Rating | Age |
++------+-------------+--------+------+
+| S101 | shivshankar | 3 | 26 |
+| S102 | hrithik | 2 | 24 |
+| S103 | hawkins | 4 | 29 |
+| S104 | homelander | 1 | 35 |
+| S105 | butcher | 2 | 37 |
++------+-------------+--------+------+
+5 rows in set (0.00 sec)
+mysql> create table BOAT
+ -> (
+ > Bid varchar(5) primary key,
+
+ -> Bname varchar(15),
+
+ -> color varchar(10)
+
+ -> );
+
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc BOAT;
+
++-------+-------------+------+-----+---------+-------+
+
+| Field | Type | Null | Key | Default | Extra |
+
++-------+-------------+------+-----+---------+-------+
+
+| Bid | varchar(5) | NO | PRI | NULL | |
+
+| Bname | varchar(15) | YES | | NULL | |
+
+| color | varchar(10) | YES | | NULL | |
+
++-------+-------------+------+-----+---------+-------+
+
+3 rows in set (0.00 sec)
+
+mysql> insert into BOAT(Bid,Bname,Color)
+
+ -> values
+
+ -> ("B101","Black_pearl","black"),
+
+ -> ("B102","Flying_nimbus","yellow"),
+
+ -> ("B103","Titanic","red"),
+
+ -> ("B104","Chik_pee","green"),
+
+ -> ("B105","Void_wind","white");
+
+ 
+
+Query OK, 5 rows affected (0.03 sec)
+
+Records: 5 Duplicates: 0 Warnings: 0
+
+mysql> select *from BOAT;
+
++------+---------------+--------+
+
+| Bid | Bname | color |
+
++------+---------------+--------+
+
+| B101 | Black_pearl | black |
+
+| B102 | Flying_nimbus | yellow |
+
+| B103 | Titanic | red |
+
+| B104 | Chik_pee | green |
+
+| B105 | Void_wind | white |
+
++------+---------------+--------+
+
+5 rows in set (0.00 sec)
+
+mysql> create table RESERVE ( 
+
+ -> Sid varchar(5),
+
+ -> Bid varchar(5),
+
+ -> Day varchar(10),
+
+ -> foreign key(Sid) references SAILOR(Sid) on delete cascade,
+
+ -> foreign key(Bid) references BOAT(Bid) on delete cascade
+
+ -> );
+
+Query OK, 0 rows affected (0.03 sec)
+ Sid | varchar(5) | YES | MUL | NULL | |
+
+| Bid | varchar(5) | YES | MUL | NULL | |
+
+| Day | varchar(10) | YES | | NULL | |
+
++-------+-------------+------+-----+---------+-------+
+
+3 rows in set (0.00 sec)
+
+mysql> insert into RESERVE
+
+ -> values
+
+ -> ("S101","B101","mon"),
+
+ -> ("S104","B103","wednes"),
+
+ -> ("S105","B105","fri")
+
+ -> ;
+
+Query OK, 3 rows affected (0.01 sec)
+
+Records: 3 Duplicates: 0 Warnings: 0
+
+mysql> select *from RESERVE;
+
++------+------+--------+
+
+| Sid | Bid | Day |
+
++------+------+--------+
+
+| S101 | B101 | mon |
+
+| S104 | B103 | wednes |
+
+| S105 | B105 | fri |
+
++------+------+--------+
+
+3 rows in set (0.00 sec)
+
+---------------------------
+
+1)mysql> select B.color
+
+ -> from BOAT B,SAILOR S,RESERVE R
+
+ -> where B.Bid=R.Bid AND S.Sid=R.Sid AND S.Sname='shivshankar';
+
++-------+
+
+| color |
+
++-------+
+
+| black |
+
++-------+
+
+1 row in set (0.00 sec)
+
+--------------------------
+
+2)mysql> select S.Sname 
+
+ -> from SAILOR S,BOAT B,RESERVE R 
+
+ -> where S.Sid=R.Sid AND 
+
+ -> R.Bid in (select Bid
+
+ -> from BOAT
+
+ -> where color="red" OR color="green");
+
++------------+
+
+| Sname |
+
++------------+
+
+| homelander |
+
+| homelander |
+
+| homelander |
+
+| homelander |
+| homelander |
+
++------------+
+
+5 rows in set (0.00 sec)
+
+mysql> select distinct S.Sname from SAILOR S,BOAT B,RESERVE R where S.Sid=R.Sid AND 
+
+R.Bid in (select Bid from BOAT where color="red" OR color="green");
+
++------------+
+
+| Sname |
+
++------------+
+
+| homelander |
+
++------------+
+
+1 row in set (0.01 sec)
+
+mysql> insert into RESERVE values("S102","B103","thurs");
+
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select distinct S.Sname from SAILOR S,BOAT B,RESERVE R where S.Sid=R.Sid AND 
+
+R.Bid in (select Bid from BOAT where color="red" OR color="green");
+
++------------+
+
+| Sname |
+
++------------+
+
+| hrithik |
+
+| homelander |
+
++------------+
+
+2 rows in set (0.00 sec)
+
+----------------------------
+
+4)
+
+mysql> select S.Sname,COUNT(R.Bid)
+
+ -> from SAILOR S,RESERVE R
+
+ -> where S.Sid=R.Sid
+
+ -> group by S.Sname;
+
++-------------+--------------+
+
+| Sname | COUNT(R.Bid) |
+
++-------------+--------------+
+
+| shivshankar | 1 |
+
+| homelander | 1 |
+
+| butcher | 1 |
+
++-------------+--------------+
+
+3 rows in set (0.00 sec)
+
+mysql> insert into RESERVE values("S101","B102","Sun");
+
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select S.Sname,COUNT(R.Bid) from SAILOR S,RESERVE R where S.Sid=R.Sid group 
+
+by S.Sname;
+
++-------------+--------------+
+
+| Sname | COUNT(R.Bid) |
+
++-------------+--------------+
+
+| shivshankar | 2 |
+
+| homelander | 1 |
+| butcher | 1 |
+
++-------------+--------------+
+
+3 rows in set (0.00 sec)
+
+--------------------------------
+
+5)mysql> select S.Sname 
+
+ -> from SAILOR S,RESERVE R
+
+ -> where S.Sid=R.sid AND R.Bid="B104";
+
+Empty set (0.00 sec)
+
+mysql> select Sname from SAILOR where Sid in(select R.Sid from RESERVE R where 
+
+R.Bid="B101");
+
++-------------+
+
+| Sname |
+
++-------------+
+
+| shivshankar |
+
++-------------+
+
+1 row in set (0.00 sec)
+
+mysql> select S.Sname from SAILOR S,RESERVE R where S.Sid=R.Sid AND R.Bid="B102";
+
++-------------+
+
+| Sname |
+
++-------------+
+
+| shivshankar |
+
++-------------+
+
+1 row in set (0.00 sec)
+
+-----------------------------
+
+3)
+
+mysql> select S.Sid 
+
+ -> from SAILOR S,RESERVE R 
+
+ -> where S.Age>25 AND S.Sid not in(select sid from RESERVE);
+
++------+
+
+| Sid |
+
++------+
+
+| S103 |
+
+| S103 |
+
+| S103 |
+
+| S103 |
+
++------+
+
+4 rows in set (0.00 sec)
+
+mysql> select distinct S.Sid from SAILOR S,RESERVE R where S.Age>25 AND S.Sid not 
+
+in(select sid from RESERVE);
+
++------+
+
+| Sid |
+
++------+
+
+| S103 |
+
++------+
+
+1 row in set (0.00 sec)
+
+mysql> desc RESERVE;
+
++-------+-------------+------+-----+---------+-------+
+
+| Field | Type | Null | Key | Default | Extra |
+
++-------+-------------+------+-----+---------+-------+
